@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 from torch.nn.init import xavier_uniform_
+from torchtune.modules import RotaryPositionalEmbeddings
 from transformers import ConvNextConfig, ConvNextModel, PreTrainedModel
 from transformers.modeling_outputs import CausalLMOutputWithCrossAttentions
 
@@ -239,7 +240,8 @@ class Decoder(nn.Module):
         super(Decoder, self).__init__()
         self.dropout = nn.Dropout(0.5)
         self.dec_attn_win = attention_window
-        self.positional_1D = PositionalEncoding1D(d_model, maxlen)
+        #self.positional_1D = PositionalEncoding1D(d_model, maxlen)
+        self.positional_1D = RotaryPositionalEmbeddings(dim=d_model/attn_heads, max_seq_len=maxlen, base=10000)
 
         self.decoder = DecoderStack(num_dec_layers=n_layers, d_model=d_model, dim_ff=dim_ff)
 
