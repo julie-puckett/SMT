@@ -11,7 +11,7 @@
       "in_channels": 1,
       "d_model": 4,
       "dim_ff": 4,
-      "attn_heads": 4,
+      "attn_heads": 2,
       "num_dec_layers": 1
   }
 }
