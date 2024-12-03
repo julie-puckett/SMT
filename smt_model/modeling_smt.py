@@ -235,7 +235,7 @@ class DecoderStack(nn.Module):
 
 
 class Decoder(nn.Module):
-    def __init__(self, d_model, dim_ff, n_layers, maxlen, out_categories, attention_window=100) -> None:
+    def __init__(self, d_model, dim_ff, attn_heads, n_layers, maxlen, out_categories, attention_window=100) -> None:
         super(Decoder, self).__init__()
         self.dropout = nn.Dropout(0.5)
         self.dec_attn_win = attention_window
@@ -332,7 +332,7 @@ class SMTModelForCausalLM(PreTrainedModel):
         #self.encoder = ConvNextEncoder(config.in_channels, stem_features=64, depths=[4,6], widths=[128, 256])
         next_config = ConvNextConfig(num_channels=config.in_channels, num_stages=1, hidden_sizes=[4], depths=[1])
         self.encoder = ConvNextModel(next_config)
-        self.decoder = Decoder(d_model=config.d_model, dim_ff=config.dim_ff, n_layers=config.num_dec_layers, 
+        self.decoder = Decoder(d_model=config.d_model, dim_ff=config.dim_ff, attn_heads=config.num_attn_heads, n_layers=config.num_dec_layers, 
                                maxlen=config.maxlen, out_categories=config.out_categories, attention_window=config.maxlen + 1)
         
         self.positional_2D = PositionalEncoding2D(config.d_model, config.maxh, config.maxw)
