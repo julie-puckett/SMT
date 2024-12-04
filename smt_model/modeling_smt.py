@@ -241,7 +241,7 @@ class Decoder(nn.Module):
         self.dropout = nn.Dropout(0.5)
         self.dec_attn_win = attention_window
         #self.positional_1D = PositionalEncoding1D(d_model, maxlen)
-        self.positional_1D = RotaryPositionalEmbeddings(dim=d_model/attn_heads, max_seq_len=maxlen, base=10000)
+        self.positional_rope = RotaryPositionalEmbeddings(dim=int(d_model/attn_heads), max_seq_len=maxlen, base=10000)
 
         self.decoder = DecoderStack(num_dec_layers=n_layers, d_model=d_model, dim_ff=dim_ff)
 
