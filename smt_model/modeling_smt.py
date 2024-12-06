@@ -240,8 +240,7 @@ class Decoder(nn.Module):
         super(Decoder, self).__init__()
         self.dropout = nn.Dropout(0.5)
         self.dec_attn_win = attention_window
-        #self.positional_1D = PositionalEncoding1D(d_model, maxlen)
-        self.positional_rope = RotaryPositionalEmbeddings(dim=int(d_model/attn_heads), max_seq_len=maxlen, base=10000)
+        self.positional_1D = PositionalEncoding1D(d_model, maxlen)
 
         self.decoder = DecoderStack(num_dec_layers=n_layers, d_model=d_model, dim_ff=dim_ff)
 
@@ -264,7 +263,7 @@ class Decoder(nn.Module):
         
         pos_tokens = self.embedding(tokens).permute(0,2,1)
 
-        #pos_tokens = self.positional_1D(pos_tokens, start=0)
+        pos_tokens = self.positional_1D(pos_tokens, start=0)
         pos_tokens = self.positional_rope(pos_tokens)
         pos_tokens = pos_tokens.permute(2,0,1).contiguous()
 
