@@ -11,9 +11,7 @@ rich
 scikit-image
 timm
 torch
-torchao
 torchinfo
-torchtune
 torchvision
 transformers
 visualizer
