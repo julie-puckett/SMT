@@ -264,7 +264,6 @@ class Decoder(nn.Module):
         pos_tokens = self.embedding(tokens).permute(0,2,1)
 
         pos_tokens = self.positional_1D(pos_tokens, start=0)
-        pos_tokens = self.positional_rope(pos_tokens)
         pos_tokens = pos_tokens.permute(2,0,1).contiguous()
 
         if num_pred is None:
