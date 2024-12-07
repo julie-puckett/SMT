@@ -4,6 +4,7 @@ import numpy as np
 from torch.nn.init import xavier_uniform_
 from transformers import ConvNextConfig, ConvNextModel, PreTrainedModel
 from transformers.modeling_outputs import CausalLMOutputWithCrossAttentions
+from rotary_embedding_torch import RotaryEmbedding
 
 from .configuration_smt import SMTConfig
 
@@ -73,13 +74,15 @@ class MHA(nn.Module):
         
         self.out_proj = nn.Linear(embedding_dim, embedding_dim)
 
+        self.rot_emb = RotaryEmbedding(embedding_dim // num_heads)
+
         self.num_heads = num_heads
         self.head_dim = embedding_dim // num_heads
         self.scale_factor = float(self.head_dim) ** -0.5
         self.dropout = nn.Dropout(dropout)
         self.softmax = nn.Softmax(dim=-1)
             
-    def forward(self, query, key, value, key_pad_mask=None, attn_mask=None, get_weights=True):
+    def forward(self, query, key, value, key_pad_mask=None, attn_mask=None, get_weights=True, rope=True):
         
         target_len, b, c = query.size()
         source_len = key.size(0)
@@ -91,6 +94,11 @@ class MHA(nn.Module):
         q = torch.reshape(q, (target_len, b*self.num_heads, self.head_dim)).transpose(0, 1)
         k = torch.reshape(k, (source_len, b*self.num_heads, self.head_dim)).transpose(0, 1)
         v = torch.reshape(v, (source_len, b*self.num_heads, self.head_dim)).transpose(0, 1)
+
+        if rope: # Applies Rotary Position Embedding
+            q = self.rot_emb.rotate_queries_or_keys(q)
+            k = self.rot_emb.rotate_queries_or_keys(k)
+            # no rotation is applied to v.
         
         attn_output_weigths = torch.bmm(q, k.transpose(1,2))
         
