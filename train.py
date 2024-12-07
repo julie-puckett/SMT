@@ -39,7 +39,7 @@ def main(config_path):
                                    save_top_k=1, verbose=True)
 
     trainer = Trainer(max_epochs=400,
-                      check_val_every_n_epoch=50,
+                      check_val_every_n_epoch=2,
                       logger=wandb_logger,
                       callbacks=[checkpointer, early_stopping])
     
