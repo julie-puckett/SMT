@@ -142,23 +142,23 @@ class DecoderLayer(nn.Module):
         self.input_attention = MHA(embedding_dim=self.d_model,
                              num_heads=4,
                              proj_value=True,
-                             dropout=0.5)
+                             dropout=0.1)
         
         self.norm1 = nn.LayerNorm(self.d_model)
 
         self.cross_attention = MHA(embedding_dim=self.d_model,
                              num_heads=4,
                              proj_value=True,
-                             dropout=0.5)
+                             dropout=0.1)
 
         self.ffNet = nn.Sequential(
             nn.Linear(self.d_model, self.ff),
             nn.ReLU(),
-            nn.Dropout(0.5),
+            nn.Dropout(0.1),
             nn.Linear(self.ff, self.d_model)
         )
 
-        self.dropout = nn.Dropout(0.5)
+        self.dropout = nn.Dropout(0.1)
 
         self.norm2 = nn.LayerNorm(self.d_model)
         self.norm3 = nn.LayerNorm(self.d_model)
@@ -245,7 +245,7 @@ class DecoderStack(nn.Module):
 class Decoder(nn.Module):
     def __init__(self, d_model, dim_ff, attn_heads, n_layers, maxlen, out_categories, attention_window=100) -> None:
         super(Decoder, self).__init__()
-        self.dropout = nn.Dropout(0.5)
+        self.dropout = nn.Dropout(0.1)
         self.dec_attn_win = attention_window
         self.positional_1D = PositionalEncoding1D(d_model, maxlen)
 
