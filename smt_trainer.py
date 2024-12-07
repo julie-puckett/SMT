@@ -11,12 +11,12 @@ from smt_model import SMTConfig
 from smt_model import SMTModelForCausalLM
 
 class SMT_Trainer(L.LightningModule):
-    def __init__(self, maxh, maxw, maxlen, out_categories, padding_token, in_channels, w2i, i2w, d_model=4, dim_ff=4, num_dec_layers=1):
+    def __init__(self, maxh, maxw, maxlen, out_categories, padding_token, in_channels, w2i, i2w, d_model, dim_ff, attn_heads, num_dec_layers):
         super().__init__()
         self.config = SMTConfig(maxh=maxh, maxw=maxw, maxlen=maxlen, out_categories=out_categories,
-                           padding_token=padding_token, in_channels=in_channels, 
+                           padding_token=padding_token, in_channels=in_channels,
                            w2i=w2i, i2w=i2w,
-                           d_model=d_model, dim_ff=dim_ff, attn_heads=4, num_dec_layers=num_dec_layers,
+                           d_model=d_model, dim_ff=dim_ff, attn_heads=attn_heads, num_dec_layers=num_dec_layers,
                            use_flash_attn=True)
         self.model = SMTModelForCausalLM(self.config)
         self.padding_token = padding_token

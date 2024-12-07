@@ -28,7 +28,7 @@ def main(config_path):
     model_wrapper = SMT_Trainer(maxh=int(max_height), maxw=int(max_width), maxlen=int(max_len), 
                                 out_categories=len(datamodule.train_set.w2i), padding_token=datamodule.train_set.w2i["<pad>"], 
                                 in_channels=model_config['model']['in_channels'], w2i=datamodule.train_set.w2i, i2w=datamodule.train_set.i2w, 
-                                d_model=model_config['model']['d_model'], dim_ff=model_config['model']['dim_ff'], num_dec_layers=model_config['model']['num_dec_layers'])
+                                d_model=model_config['model']['d_model'], dim_ff=model_config['model']['dim_ff'], attn_heads=model_config['model']['attn_heads'], num_dec_layers=model_config['model']['num_dec_layers'])
     
     wandb_logger = WandbLogger(project='SMT_Reimplementation', group="GrandStaff", name=f"SMT_NexT_GrandStaff", log_model=False)
 
@@ -38,9 +38,10 @@ def main(config_path):
                                    monitor="val_SER", mode='min',
                                    save_top_k=1, verbose=True)
 
-    trainer = Trainer(max_epochs=400, #10000,
-                      check_val_every_n_epoch=50,  # 5,
-                      logger=wandb_logger, callbacks=[checkpointer, early_stopping])
+    trainer = Trainer(max_epochs=400,
+                      check_val_every_n_epoch=50,
+                      logger=wandb_logger,
+                      callbacks=[checkpointer, early_stopping])
     
     trainer.fit(model_wrapper,datamodule=datamodule)
 
