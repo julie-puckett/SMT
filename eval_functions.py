@@ -46,14 +46,23 @@ def compute_poliphony_metrics(hyp_array, gt_array):
     gt_ler = []
     
     for h_string, gt_string in zip(hyp_array, gt_array):
+
+        # Bug fix: removing <pad> and <eos> sequences in the Ground Truth seq, since the Predicted seq ends when
+        # encountering <eos> for the first time in the smt_model/modeling_smt.py predict() function.
+
+        gt_string_remove_pad = gt_string.replace('<pad>', '').replace('<eos>', '')
+
         hyp_ler.append(parse_krn_content(h_string, ler_parsing=True, cer_parsing=False))
-        gt_ler.append(parse_krn_content(gt_string, ler_parsing=True, cer_parsing=False))
+        # gt_ler.append(parse_krn_content(gt_string, ler_parsing=True, cer_parsing=False))
+        gt_ler.append(parse_krn_content(gt_string_remove_pad, ler_parsing=True, cer_parsing=False))
 
         hyp_ser.append(parse_krn_content(h_string, ler_parsing=False, cer_parsing=False))
-        gt_ser.append(parse_krn_content(gt_string, ler_parsing=False, cer_parsing=False))
+        # gt_ser.append(parse_krn_content(gt_string, ler_parsing=False, cer_parsing=False))
+        gt_ser.append(parse_krn_content(gt_string_remove_pad, ler_parsing=False, cer_parsing=False))
 
         hyp_cer.append(parse_krn_content(h_string, ler_parsing=False, cer_parsing=True))
-        gt_cer.append(parse_krn_content(gt_string, ler_parsing=False, cer_parsing=True))
+        # gt_cer.append(parse_krn_content(gt_string, ler_parsing=False, cer_parsing=True))
+        gt_cer.append(parse_krn_content(gt_string_remove_pad, ler_parsing=False, cer_parsing=True))
     
     acc_ed_dist = 0
     acc_len = 0
