@@ -16,4 +16,3 @@ torchvision
 transformers
 visualizer
 datasets
-rotary-embedding-torch
