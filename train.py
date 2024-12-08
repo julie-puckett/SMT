@@ -30,7 +30,7 @@ def main(config_path):
                                 in_channels=model_config['model']['in_channels'], w2i=datamodule.train_set.w2i, i2w=datamodule.train_set.i2w, 
                                 d_model=model_config['model']['d_model'], dim_ff=model_config['model']['dim_ff'], attn_heads=model_config['model']['attn_heads'], num_dec_layers=model_config['model']['num_dec_layers'])
     
-    wandb_logger = WandbLogger(project='SMT_Reimplementation', group="GrandStaff", name=f"SMT_NexT_GrandStaff", log_model=False)
+    wandb_logger = WandbLogger(project='SMT_Reimplementation', group="GrandStaff", name=f"SMT_NexT_GrandStaff", log_model='all')
 
     early_stopping = EarlyStopping(monitor="val_SER", min_delta=0.01, patience=5, mode="min", verbose=True)
     
