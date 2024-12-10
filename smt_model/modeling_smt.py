@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 from torch.nn.init import xavier_uniform_
-from transformers import ConvNextConfig, ConvNextModel, PreTrainedModel
+from transformers import ConvNextV2Config, ConvNextV2Model, PreTrainedModel
 from transformers.modeling_outputs import CausalLMOutputWithCrossAttentions
 from rotary_embedding_torch import RotaryEmbedding
 
@@ -338,8 +338,8 @@ class SMTModelForCausalLM(PreTrainedModel):
     def __init__(self, config:SMTConfig):
         super().__init__(config)
         #self.encoder = ConvNextEncoder(config.in_channels, stem_features=64, depths=[4,6], widths=[128, 256])
-        next_config = ConvNextConfig(num_channels=config.in_channels, num_stages=3, hidden_sizes=[32, 64, 128], depths=[3, 3, 9])
-        self.encoder = ConvNextModel(next_config)
+        next_config = ConvNextV2Config(num_channels=config.in_channels, num_stages=3, hidden_sizes=[32, 64, 128], depths=[3, 3, 9])
+        self.encoder = ConvNextV2Model(next_config)
         self.decoder = Decoder(d_model=config.d_model, dim_ff=config.dim_ff, attn_heads=config.num_attn_heads, n_layers=config.num_dec_layers, 
                                maxlen=config.maxlen, out_categories=config.out_categories, attention_window=config.maxlen + 1)
         
