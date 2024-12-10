@@ -4,6 +4,7 @@ import numpy as np
 from torch.nn.init import xavier_uniform_
 from transformers import ConvNextConfig, ConvNextModel, PreTrainedModel
 from transformers.modeling_outputs import CausalLMOutputWithCrossAttentions
+from rotary_embedding_torch import RotaryEmbedding
 
 from .configuration_smt import SMTConfig
 
@@ -73,13 +74,15 @@ class MHA(nn.Module):
         
         self.out_proj = nn.Linear(embedding_dim, embedding_dim)
 
+        self.rot_emb = RotaryEmbedding(embedding_dim // num_heads)
+
         self.num_heads = num_heads
         self.head_dim = embedding_dim // num_heads
         self.scale_factor = float(self.head_dim) ** -0.5
         self.dropout = nn.Dropout(dropout)
         self.softmax = nn.Softmax(dim=-1)
             
-    def forward(self, query, key, value, key_pad_mask=None, attn_mask=None, get_weights=True):
+    def forward(self, query, key, value, key_pad_mask=None, attn_mask=None, get_weights=True, rope=True):
         
         target_len, b, c = query.size()
         source_len = key.size(0)
@@ -91,6 +94,11 @@ class MHA(nn.Module):
         q = torch.reshape(q, (target_len, b*self.num_heads, self.head_dim)).transpose(0, 1)
         k = torch.reshape(k, (source_len, b*self.num_heads, self.head_dim)).transpose(0, 1)
         v = torch.reshape(v, (source_len, b*self.num_heads, self.head_dim)).transpose(0, 1)
+
+        if rope: # Applies Rotary Position Embedding
+            q = self.rot_emb.rotate_queries_or_keys(q)
+            k = self.rot_emb.rotate_queries_or_keys(k)
+            # no rotation is applied to v.
         
         attn_output_weigths = torch.bmm(q, k.transpose(1,2))
         
@@ -134,23 +142,23 @@ class DecoderLayer(nn.Module):
         self.input_attention = MHA(embedding_dim=self.d_model,
                              num_heads=4,
                              proj_value=True,
-                             dropout=0.5)
+                             dropout=0.1)
         
         self.norm1 = nn.LayerNorm(self.d_model)
 
         self.cross_attention = MHA(embedding_dim=self.d_model,
                              num_heads=4,
                              proj_value=True,
-                             dropout=0.5)
+                             dropout=0.1)
 
         self.ffNet = nn.Sequential(
             nn.Linear(self.d_model, self.ff),
             nn.ReLU(),
-            nn.Dropout(0.5),
+            nn.Dropout(0.1),
             nn.Linear(self.ff, self.d_model)
         )
 
-        self.dropout = nn.Dropout(0.5)
+        self.dropout = nn.Dropout(0.1)
 
         self.norm2 = nn.LayerNorm(self.d_model)
         self.norm3 = nn.LayerNorm(self.d_model)
@@ -237,7 +245,7 @@ class DecoderStack(nn.Module):
 class Decoder(nn.Module):
     def __init__(self, d_model, dim_ff, attn_heads, n_layers, maxlen, out_categories, attention_window=100) -> None:
         super(Decoder, self).__init__()
-        self.dropout = nn.Dropout(0.5)
+        self.dropout = nn.Dropout(0.1)
         self.dec_attn_win = attention_window
         self.positional_1D = PositionalEncoding1D(d_model, maxlen)
 
