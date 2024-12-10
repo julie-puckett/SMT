@@ -1,7 +1,7 @@
 {
     "data":{
       "data_path": "mtruong9/gt_smt_grandstaff_random_20percent_max_700_length",
-      "batch_size": 16,
+      "batch_size": 32,
       "vocab_name": "GrandStaff",
       "img_format": ".jpg",
       "num_workers": 8,
