@@ -56,7 +56,7 @@ def main(config_path):
                       logger=wandb_logger,
                       callbacks=[checkpointer, early_stopping])
     
-    trainer.fit(model_wrapper,datamodule=datamodule)
+    trainer.fit(model_wrapper,datamodule=datamodule, ckpt_path=checkpoint_path)
 
     model = SMT_Trainer.load_from_checkpoint(checkpointer.best_model_path)
 
