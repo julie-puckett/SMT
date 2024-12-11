@@ -1,3 +1,5 @@
+import os
+import wandb
 import fire
 import json
 import torch
@@ -13,6 +15,17 @@ from lightning.pytorch.callbacks.early_stopping import EarlyStopping
 torch.set_float32_matmul_precision('high')
 
 def main(config_path):
+    api = wandb.Api()
+    run = api.run("jpuckett33-georgia-institute-of-technology/SMT_Reimplementation/zk6a26lc")
+    artifact = api.artifact(f"SMT_Reimplementation/model-zk6a26lc:v3")
+    artifact_dir = artifact.download()
+
+    checkpoint_files = [f for f in os.listdir(artifact_dir) if f.endswith(".ckpt")]
+    if checkpoint_files:
+        print(f"Found checkpoint: {checkpoint_files[0]}")
+        checkpoint_path = os.path.join(artifact_dir, checkpoint_files[0])
+    else:
+        raise FileNotFoundError("No checkpoint file found in the downloaded artifact.")
     
     with open(config_path, "r") as f:
         config = experiment_config_from_dict(json.load(f))
@@ -41,7 +54,8 @@ def main(config_path):
     trainer = Trainer(max_epochs=400,
                       check_val_every_n_epoch=50,
                       logger=wandb_logger,
-                      callbacks=[checkpointer, early_stopping])
+                      callbacks=[checkpointer, early_stopping],
+                      resume_from_checkpoint=checkpoint_path)
     
     trainer.fit(model_wrapper,datamodule=datamodule)
 
