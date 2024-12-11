@@ -54,8 +54,7 @@ def main(config_path):
     trainer = Trainer(max_epochs=400,
                       check_val_every_n_epoch=50,
                       logger=wandb_logger,
-                      callbacks=[checkpointer, early_stopping],
-                      resume_from_checkpoint=checkpoint_path)
+                      callbacks=[checkpointer, early_stopping])
     
     trainer.fit(model_wrapper,datamodule=datamodule)
 
